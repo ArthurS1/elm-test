@@ -3,7 +3,7 @@ module Main exposing (..)
 import Browser
 import Http
 import Config
-import Url
+import Url.Builder
 import Html exposing (Html, button, div, text, input)
 import Html.Events exposing (onClick, onInput)
 import Html.Attributes exposing (placeholder)
@@ -58,14 +58,12 @@ update msg model =
       Reload -> (
         model,
         Http.get {
-          url =
+          url = Url.Builder.crossOrigin
             Config.apiUrl
-            ++ "weather?lat="
-            ++ String.fromFloat (Maybe.withDefault {lat = 0, long = 0} model.geoloc).lat
-            ++ "&lon="
-            ++ String.fromFloat (Maybe.withDefault {lat = 0, long = 0} model.geoloc).long
-            ++ "&appid="
-            ++ Config.apiKey,
+            ["data", "2.5", "weather"]
+            [Url.Builder.string "lat" (String.fromFloat (Maybe.withDefault {lat = 0, long = 0} model.geoloc).lat)
+            , Url.Builder.string "lon" (String.fromFloat (Maybe.withDefault {lat = 0, long = 0} model.geoloc).long)
+            , Url.Builder.string "appid" Config.apiKey],
           expect = Http.expectJson ReceiveLocation weatherDecoder
         }
         )
